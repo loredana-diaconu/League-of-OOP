@@ -1,0 +1,53 @@
+package abilities;
+
+import common.Constants;
+import players.Player;
+import players.Knight;
+import players.Rogue;
+import players.Wizard;
+import players.Pyromancer;
+
+public final class Backstab implements Ability {
+    private int baseDamage;
+
+    public Backstab() {
+        baseDamage = Constants.BACKSTAB_DMG;
+    }
+
+    public void levelUp() {
+        baseDamage += Constants.BACKSTAB_LEVEL_BONUS;
+    }
+
+    private void computeDamage(final Player p, final int round,
+                               final float landMod, final float raceMod) {
+        int damageWithoutMods = p.getDamageWithoutMods();
+        float damage = baseDamage * landMod;
+        if (round % Constants.BACKSTAB_ROUNDS == 0 && landMod != 1) {
+            damage *= Constants.BACKSTAB_WOODS_BONUS;
+        }
+        p.setDamageWithoutMods(damageWithoutMods + Math.round(damage));
+        damage *= raceMod;
+        damage = Math.round(damage);
+        p.setHp(Math.round(p.getHp() - damage));
+    }
+
+    @Override
+    public void attack(final Knight knight, final int round, final float landModifier) {
+        computeDamage(knight, round, landModifier, Constants.BACKSTAB_KNIGHT_MOD);
+    }
+
+    @Override
+    public void attack(final Rogue rogue, final int round, final float landModifier) {
+        computeDamage(rogue, round, landModifier, Constants.BACKSTAB_ROGUE_MOD);
+    }
+
+    @Override
+    public void attack(final Wizard wizard, final int round, final float landModifier) {
+        computeDamage(wizard, round, landModifier, Constants.BACKSTAB_WIZARD_MOD);
+    }
+
+    @Override
+    public void attack(final Pyromancer pyro, final int round, final float landModifier) {
+        computeDamage(pyro, round, landModifier, Constants.BACKSTAB_PYRO_MOD);
+    }
+}
